@@ -214,6 +214,8 @@ int main(int argc, char **argv)
 
     nav_msgs::Path laserPath;
 
+    tf::TransformBroadcaster odom_broadcaster;
+
     int frameCount = 0;
     ros::Rate rate(100);
 
@@ -528,6 +530,21 @@ int main(int argc, char **argv)
             laserPath.poses.push_back(laserPose);
             laserPath.header.frame_id = "/camera_init";
             pubLaserPath.publish(laserPath);
+
+
+            geometry_msgs::TransformStamped odom_trans;
+            odom_trans.header.stamp = ros::Time().fromSec(timeSurfPointsLessFlat);
+            odom_trans.header.frame_id = "/odom";
+            odom_trans.child_frame_id = "/body";
+
+            odom_trans.transform.translation.x = t_w_curr.x();
+            odom_trans.transform.translation.y = t_w_curr.y();
+            odom_trans.transform.translation.z = t_w_curr.z();
+            odom_trans.transform.rotation.x = q_w_curr.x();
+            odom_trans.transform.rotation.y = q_w_curr.y();
+            odom_trans.transform.rotation.z = q_w_curr.z();
+            odom_trans.transform.rotation.w = q_w_curr.w();
+            odom_broadcaster.sendTransform(odom_trans);
 
             // transform corner features and plane features to the scan end point
             if (0)

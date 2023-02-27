@@ -265,15 +265,15 @@ void process()
 			timeLaserCloudFullRes = fullResBuf.front()->header.stamp.toSec();
 			timeLaserOdometry = odometryBuf.front()->header.stamp.toSec();
 
-			if (timeLaserCloudCornerLast != timeLaserOdometry ||
-				timeLaserCloudSurfLast != timeLaserOdometry ||
-				timeLaserCloudFullRes != timeLaserOdometry)
-			{
-				printf("time corner %f surf %f full %f odom %f \n", timeLaserCloudCornerLast, timeLaserCloudSurfLast, timeLaserCloudFullRes, timeLaserOdometry);
-				printf("unsync messeage!");
-				mBuf.unlock();
-				break;
-			}
+			// if (timeLaserCloudCornerLast != timeLaserOdometry ||
+			// 	timeLaserCloudSurfLast != timeLaserOdometry ||
+			// 	timeLaserCloudFullRes != timeLaserOdometry)
+			// {
+			// 	printf("time corner %f surf %f full %f odom %f \n", timeLaserCloudCornerLast, timeLaserCloudSurfLast, timeLaserCloudFullRes, timeLaserOdometry);
+			// 	printf("unsync messeage!");
+			// 	mBuf.unlock();
+			// 	break;
+			// }
 
 			laserCloudCornerLast->clear();
 			pcl::fromROSMsg(*cornerLastBuf.front(), *laserCloudCornerLast);
@@ -719,6 +719,10 @@ void process()
 					ceres::Solver::Summary summary;
 					ceres::Solve(options, &problem, &summary);
 					printf("mapping solver time %f ms \n", t_solver.toc());
+					std::ofstream compute_time_writer;
+					compute_time_writer.open("/home/hriday/compute_time_aloam.csv", std::ofstream::out | std::ofstream::app);
+ 					compute_time_writer << std::to_string(ros::Time::now().toSec()) + "," + std::to_string((t_solver.toc()/1000)) +  "\n";
+					compute_time_writer.close();
 
 					//printf("time %f \n", timeLaserOdometry);
 					//printf("corner factor num %d surf factor num %d\n", corner_num, surf_num);
